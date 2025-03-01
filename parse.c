@@ -31,7 +31,7 @@ typedef enum {
 } PState;
 
 enum Token {
-	Txxx = 0,
+	Txxx = 0,           /// not a token
 
 	/* aliases */
 	Tloadw = NPubOp,
@@ -71,22 +71,22 @@ enum Token {
 	Tz,
 
 	Tint,
-	Tflts,
-	Tfltd,
-	Ttmp,
-	Tlbl,
-	Tglo,
-	Ttyp,
-	Tstr,
+	Tflts,        /// s_FP single float
+	Tfltd,        /// d_FP double float
+	Ttmp,         /// %
+	Tlbl,         /// @
+	Tglo,         /// $
+	Ttyp,         /// :
+	Tstr,         /// "..."
 
-	Tplus,
-	Teq,
-	Tcomma,
-	Tlparen,
-	Trparen,
-	Tlbrace,
-	Trbrace,
-	Tnl,
+	Tplus,         /// + TODO
+	Teq,            /// =
+	Tcomma,         /// ,
+	Tlparen,        /// (
+	Trparen,        /// )
+	Tlbrace,        /// {
+	Trbrace,        /// }
+	Tnl,            /// \n
 	Tdots,
 	Teof,
 
@@ -141,7 +141,7 @@ enum {
 	M = 23,
 };
 
-static uchar lexh[1 << (32-M)];
+static uchar lexh[1 << (32-M)];     /// hash table for keywords
 static FILE *inf;
 static char *inpath;
 static int thead;
@@ -349,6 +349,7 @@ next()
 	return t;
 }
 
+/// Skip newlines and return the next token
 static int
 nextnl()
 {
@@ -460,6 +461,7 @@ findtyp(int i)
 	err("undefined type :%s", tokval.str);
 }
 
+/// parse class: w/l/s/d etc.
 static int
 parsecls(int *tyn)
 {
@@ -589,7 +591,7 @@ closeblk()
 }
 
 static PState
-parseline(PState ps)
+parseline(PState ps) /// parse a line of code, either a label, a tmp assignment, ...
 {
 	Ref arg[NPred] = {R};
 	Blk *blk[NPred];
@@ -915,10 +917,10 @@ parsefn(Lnk *lnk)
 	blink = &curf->start;
 	curf->retty = Kx;
 	if (peek() != Tglo)
-		rcls = parsecls(&curf->retty);
+		rcls = parsecls(&curf->retty);  // return class
 	else
 		rcls = K0;
-	if (next() != Tglo)
+	if (next() != Tglo)  // expect $name
 		err("function name expected");
 	strncpy(curf->name, tokval.str, NString-1);
 	curf->vararg = parserefl(0);
@@ -1212,8 +1214,8 @@ parse(FILE *f, char *path, void dbgfile(char *), void data(Dat *), void func(Fn 
 	ntyp = 0;
 	typ = vnew(0, sizeof typ[0], PHeap);
 	for (;;) {
-		lnk = (Lnk){0};
-		switch (parselnk(&lnk)) {
+		lnk = (Lnk){0};   // zero default
+		switch (parselnk(&lnk)) {   // parse linkage if exists, then return the next token
 		default:
 			err("top-level definition expected");
 		case Tdbgfile:

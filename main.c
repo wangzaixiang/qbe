@@ -6,6 +6,7 @@
 Target T;
 
 char debug['Z'+1] = {
+    ['9'] = 0, /* debug all */
 	['P'] = 0, /* parsing */
 	['M'] = 0, /* memory optimization */
 	['N'] = 0, /* ssa construction */
@@ -47,6 +48,7 @@ data(Dat *d)
 	}
 }
 
+/// TODO ???
 static void
 func(Fn *fn)
 {
@@ -58,40 +60,40 @@ func(Fn *fn)
 		fprintf(stderr, "\n> After parsing:\n");
 		printfn(fn, stderr);
 	}
-	T.abi0(fn);
-	fillrpo(fn);
-	fillpreds(fn);
-	filluse(fn);
-	promote(fn);
-	filluse(fn);
-	ssa(fn);
-	filluse(fn);
-	ssacheck(fn);
-	fillalias(fn);
-	loadopt(fn);
-	filluse(fn);
-	fillalias(fn);
-	coalesce(fn);
-	filluse(fn);
-	ssacheck(fn);
-	copy(fn);
-	filluse(fn);
-	fold(fn);
-	T.abi1(fn);
-	simpl(fn);
-	fillpreds(fn);
-	filluse(fn);
-	T.isel(fn);
-	fillrpo(fn);
-	filllive(fn);
-	fillloop(fn);
-	fillcost(fn);
-	spill(fn);
-	rega(fn);
-	fillrpo(fn);
-	simpljmp(fn);
-	fillpreds(fn);
-	fillrpo(fn);
+	T.abi0(fn);     if(debug['9']) { fprintf(stderr, "\n> After abi0:\n"); printfn(fn, stderr); }
+	fillrpo(fn);    if(debug['9']) { fprintf(stderr, "\n> After fillrpo:\n"); printfn(fn, stderr); }
+	fillpreds(fn);  if(debug['9']) { fprintf(stderr, "\n> After fillpreds:\n"); printfn(fn, stderr); }
+	filluse(fn);    if(debug['9']) { fprintf(stderr, "\n> After filluse:\n"); printfn(fn, stderr); }
+	promote(fn);    if(debug['9']) { fprintf(stderr, "\n> After promote:\n"); printfn(fn, stderr); }
+	filluse(fn);    if(debug['9']) { fprintf(stderr, "\n> After filluse:\n"); printfn(fn, stderr); }
+	ssa(fn);        if(debug['9']) { fprintf(stderr, "\n> After ssa:\n"); printfn(fn, stderr); }
+	filluse(fn);    if(debug['9']) { fprintf(stderr, "\n> After filluse:\n"); printfn(fn, stderr); }
+	ssacheck(fn);   if(debug['9']) { fprintf(stderr, "\n> After ssacheck:\n"); printfn(fn, stderr); }
+	fillalias(fn);  if(debug['9']) { fprintf(stderr, "\n> After fillalias:\n"); printfn(fn, stderr); }
+	loadopt(fn);    if(debug['9']) { fprintf(stderr, "\n> After loadopt:\n"); printfn(fn, stderr); }
+	filluse(fn);    if(debug['9']) { fprintf(stderr, "\n> After filluse:\n"); printfn(fn, stderr); }
+	fillalias(fn);  if(debug['9']) { fprintf(stderr, "\n> After fillalias:\n"); printfn(fn, stderr); }
+	coalesce(fn);   if(debug['9']) { fprintf(stderr, "\n> After coalesce:\n"); printfn(fn, stderr); }
+	filluse(fn);    if(debug['9']) { fprintf(stderr, "\n> After filluse:\n"); printfn(fn, stderr); }
+	ssacheck(fn);   if(debug['9']) { fprintf(stderr, "\n> After ssacheck:\n"); printfn(fn, stderr); }
+	copy(fn);       if(debug['9']) { fprintf(stderr, "\n> After copy:\n"); printfn(fn, stderr); }
+	filluse(fn);    if(debug['9']) { fprintf(stderr, "\n> After filluse:\n"); printfn(fn, stderr); }
+	fold(fn);       if(debug['9']) { fprintf(stderr, "\n> After fold:\n"); printfn(fn, stderr); }
+	T.abi1(fn);     if(debug['9']) { fprintf(stderr, "\n> After abi1:\n"); printfn(fn, stderr); }
+	simpl(fn);      if(debug['9']) { fprintf(stderr, "\n> After simpl:\n"); printfn(fn, stderr); }
+	fillpreds(fn);  if(debug['9']) { fprintf(stderr, "\n> After fillpreds:\n"); printfn(fn, stderr); }
+	filluse(fn);    if(debug['9']) { fprintf(stderr, "\n> After filluse:\n"); printfn(fn, stderr); }
+	T.isel(fn);     if(debug['9']) { fprintf(stderr, "\n> After isel:\n"); printfn(fn, stderr); }
+	fillrpo(fn);    if(debug['9']) { fprintf(stderr, "\n> After fillrpo:\n"); printfn(fn, stderr); }
+	filllive(fn);   if(debug['9']) { fprintf(stderr, "\n> After filllive:\n"); printfn(fn, stderr); }
+	fillloop(fn);   if(debug['9']) { fprintf(stderr, "\n> After fillloop:\n"); printfn(fn, stderr); }
+	fillcost(fn);   if(debug['9']) { fprintf(stderr, "\n> After fillcost:\n"); printfn(fn, stderr); }
+	spill(fn);      if(debug['9']) { fprintf(stderr, "\n> After spill:\n"); printfn(fn, stderr); }
+	rega(fn);       if(debug['9']) { fprintf(stderr, "\n> After rega:\n"); printfn(fn, stderr); }
+	fillrpo(fn);    if(debug['9']) { fprintf(stderr, "\n> After fillrpo:\n"); printfn(fn, stderr); }
+	simpljmp(fn);   if(debug['9']) { fprintf(stderr, "\n> After simpljmp:\n"); printfn(fn, stderr); }
+	fillpreds(fn);  if(debug['9']) { fprintf(stderr, "\n> After fillpreds:\n"); printfn(fn, stderr); }
+	fillrpo(fn);    if(debug['9']) { fprintf(stderr, "\n> After fillrpo:\n"); printfn(fn, stderr); }
 	assert(fn->rpo[0] == fn->start);
 	for (n=0;; n++)
 		if (n == fn->nblk-1) {
@@ -131,6 +133,10 @@ main(int ac, char *av[])
 					debug[toupper(*optarg)] = 1;
 					dbg = 1;
 				}
+                else if (*optarg == '9') {
+                    debug[*optarg] = 1;
+                    dbg = 1;
+                }
 			break;
 		case 'o':
 			if (strcmp(optarg, "-") != 0) {

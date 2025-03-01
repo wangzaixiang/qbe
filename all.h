@@ -41,6 +41,7 @@ enum {
 	NBit    = CHAR_BIT * sizeof(bits),
 };
 
+/// amd64, arm64, rv64 etc.
 struct Target {
 	char name[16];
 	char apple;
@@ -242,9 +243,9 @@ struct Blk {
 		short type;
 		Ref arg;
 	} jmp;
-	Blk *s1;
-	Blk *s2;
-	Blk *link;
+	Blk *s1;        // branch1 or jump
+	Blk *s2;        // branch2
+	Blk *link;      // next block
 
 	uint id;
 	uint visit;
@@ -370,17 +371,18 @@ struct Addr { /* amd64 addressing */
 	int scale;
 };
 
+/// Linkage, see https://c9x.me/compile/doc/il.html#Linkage
 struct Lnk {
 	char export;
-	char thread;
+	char thread;    // for thread data
 	char common;
 	char align;
-	char *sec;
-	char *secf;
+	char *sec;      // section name
+	char *secf;     // section flag
 };
 
 struct Fn {
-	Blk *start;
+	Blk *start;         // start block
 	Tmp *tmp;
 	Con *con;
 	Mem *mem;
