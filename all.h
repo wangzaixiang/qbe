@@ -222,8 +222,8 @@ struct Op {
 struct Ins {
 	uint op:30;
 	uint cls:2;
-	Ref to;
-	Ref arg[2];
+	Ref to;         // destination
+	Ref arg[2];     // source1, source2
 };
 
 struct Phi {
@@ -245,25 +245,25 @@ struct Blk {
 	} jmp;
 	Blk *s1;        // branch1 or jump
 	Blk *s2;        // branch2
-	Blk *link;      // next block
+	Blk *link;      // next block in lexical order
 
-	uint id;
+	uint id;        // reverse post order number
 	uint visit;
 
-	Blk *idom;
+	Blk *idom;     // ???
 	Blk *dom, *dlink;
 	Blk **fron;
 	uint nfron;
 
-	Blk **pred;
-	uint npred;
+	Blk **pred;     // predecessors, pred->s1 == this || pred->s2 == this
+	uint npred;     // number of predecessors
 	BSet in[1], out[1], gen[1];
 	int nlive[2];
 	int loop;
 	char name[NString];
 };
 
-struct Use {
+struct Use {    /// TODO what is this?
 	enum {
 		UXXX,
 		UPhi,
@@ -322,7 +322,7 @@ struct Alias {
 struct Tmp {
 	char name[NString];
 	Ins *def;
-	Use *use;
+	Use *use;   /// TODO
 	uint ndef, nuse;
 	uint bid; /* id of a defining block */
 	uint cost;
@@ -383,7 +383,7 @@ struct Lnk {
 
 struct Fn {
 	Blk *start;         // start block
-	Tmp *tmp;
+	Tmp *tmp;           // temporaries, %name, ??? 有很多 empty slot
 	Con *con;
 	Mem *mem;
 	int ntmp;
@@ -392,7 +392,7 @@ struct Fn {
 	uint nblk;
 	int retty; /* index in typ[], -1 if no aggregate return */
 	Ref retr;
-	Blk **rpo;
+	Blk **rpo;      // reverse post order
 	bits reg;
 	int slot;
 	int salign;
@@ -520,7 +520,12 @@ extern Op optab[NOp];
 void parse(FILE *, char *, void (char *), void (Dat *), void (Fn *));
 void printfn(Fn *, FILE *);
 void printref(Ref, Fn *, FILE *);
+void print_ins(Ins *i, Fn *fn, FILE *f);
+void print_blk(Blk *i, Fn *fn, FILE *f);
 void err(char *, ...) __attribute__((noreturn));
+
+char* ins2str(Ins *i, Fn *fn);
+char * blk2str(Blk *b, Fn *fn);
 
 /* abi.c */
 void elimsb(Fn *);

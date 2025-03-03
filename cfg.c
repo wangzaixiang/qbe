@@ -58,9 +58,9 @@ fillpreds(Fn *f)
 {
 	Blk *b;
 
-	for (b=f->start; b; b=b->link) {
+	for (b=f->start; b; b=b->link) {    // reset predecessors, it is already setted in ???
 		b->npred = 0;
-		b->pred = 0;
+		b->pred = 0;                // TODO 这里会有内存泄漏？
 	}
 	for (b=f->start; b; b=b->link) {
 		if (b->s1)
